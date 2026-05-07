@@ -2,6 +2,8 @@
 
 MicroPython code for a Raspberry Pi Pico W bridge lighting project. The program reads the current date, retrieves a date/colour sequence from a web-hosted JSON file, and lights a 15 LED NeoPixel strand in 5 groups of 3 LEDs.
 
+Colours for dates can be found at https://www.trumba.com/events-calendar/brisbane/light-up-brisbane
+
 If the online table cannot be fetched, today's date is missing, or a colour name is not recognised, the program uses the built-in fallback sequence:
 
 ```text
