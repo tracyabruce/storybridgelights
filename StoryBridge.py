@@ -1,6 +1,6 @@
 # Story Bridge
 # Reads an online date/colour table and lights a 15 LED strand in 5 groups of 3.
-# Strand colour order is GRB.
+# Strand colour order is GBR.
 
 from machine import I2C, Pin
 from neopixel import NeoPixel
