@@ -59,7 +59,7 @@ API_URL = (
     "latitude={}&longitude={}&current_weather=true"
 ).format(LAT, LON)
 
-# Colours - strand is GRB
+# Colours - strand is GBR
 off = 0, 0, 0
 green = 255, 0, 0
 red = 0, 0, 255
@@ -67,7 +67,7 @@ maroon = 0, 0, 128
 blue = 0, 255, 0
 teal = 128, 128, 0
 yellow = 150, 0, 255
-orange = 165, 0, 255
+orange = 60, 0, 255
 gold = 80, 0, 200
 purple = 9, 149, 140
 pink = 20, 147, 220
