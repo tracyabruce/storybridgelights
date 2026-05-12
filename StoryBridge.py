@@ -29,8 +29,8 @@ LEDcount = 15
 strand = NeoPixel(Pin(GPIOnumber), LEDcount)
 
 # Sydney daylight saving offset in seconds.
-# Adjust if needed outside daylight saving time.
-TIME_OFFSET = 39600
+# Adjust if needed outside daylight saving time, or for different location. 39600 for AEDT (11 hours) 36000 for AEST (10 hours)
+TIME_OFFSET = 36000
 
 # LCD/sensor I2C pins/BUS/address
 SDA = 14
