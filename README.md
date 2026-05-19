@@ -1,6 +1,6 @@
 # StoryBridge OLED
 
-MicroPython code for a Raspberry Pi Pico W bridge lighting project. The program fetches a date-based colour table, lights a 15 LED NeoPixel strand in 5 groups of 3 LEDs, and shows local weather/temperature information on a PiicoDev SSD1306 OLED.
+MicroPython code for a Raspberry Pi Pico W bridge lighting project. The program fetches a date-based colour table, lights a 15 LED NeoPixel strand in 5 groups of 3 LEDs, and shows local weather/temperature information on a PiicoDev SSD1306 OLED. Mx and Mn text display has been included for future update to get local temp forecasts.
 
 ## Security First
 
