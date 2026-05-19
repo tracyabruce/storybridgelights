@@ -229,19 +229,22 @@ display.fill_rect(100,0,20,10,0) #clear previous temp from display
 display.fill_rect(100,16,20,10,0) #clear previous temp from display
 display.show()
 
-# Simplify WMO codes from open-meteo into 4 broad weather forecasts to display icon
+# Simplify WMO codes from open-meteo into 5 broad weather forecasts to display icon
 if wcode[0] < 2:
     # display sunny
-    display.load_pbm('sunny1.pbm',1)
+    display.load_pbm('sunny.pbm',1)
+elif wcode[0] < 3:
+    # display partly cloudy
+    display.load_pbm('partly.pbm',1)
 elif wcode[0] < 4:
     # display cloudy
-    display.load_pbm('cloudy1.pbm',1)
+    display.load_pbm('cloudy.pbm',1)
 elif wcode[0] < 80:
     # display rain
-    display.load_pbm('rainy1.pbm',1)
+    display.load_pbm('rainy.pbm',1)
 else:
     # display stormy
-    display.load_pbm('stormy1.pbm',1)
+    display.load_pbm('stormy.pbm',1)
 display.show()
 
 # Weather refresh settings
