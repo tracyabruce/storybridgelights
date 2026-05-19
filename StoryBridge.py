@@ -1,5 +1,5 @@
 # Story Bridge - read table and date for colour of LEDs in strand - strand is GRB
-# Tracy Bruce 29 November 2025, latest edit 15 May 2026
+# Tracy Bruce 29 November 2025, latest edit 19 May 2026
 
 # Input buttons code from Pi Hut Day 3 Let it Glow
 # LED strand code based on Pi Hut Let it Glow Day 10
@@ -27,26 +27,6 @@ import ntptime
 import urequests
 import ujson
 
-try:
-    import config
-except ImportError:
-    raise RuntimeError(
-        "Missing config.py. Copy config.example.py to config.py and set "
-        "SSID, PASSWORD, and DATES_URL before running."
-    )
-
-try:
-    SSID = config.SSID
-    PASSWORD = config.PASSWORD
-    DATES_URL = config.DATES_URL
-except AttributeError:
-    raise RuntimeError("config.py must define SSID, PASSWORD, and DATES_URL.")
-
-BRISBANE_LAT = getattr(config, "BRISBANE_LAT", -27.4689)
-BRISBANE_LON = getattr(config, "BRISBANE_LON", 153.0480)
-LOCAL_LAT = getattr(config, "LOCAL_LAT", BRISBANE_LAT)
-LOCAL_LON = getattr(config, "LOCAL_LON", BRISBANE_LON)
-
 # Buttons
 redbutton = Pin(6, Pin.IN, Pin.PULL_DOWN)
 greenbutton = Pin(7, Pin.IN, Pin.PULL_DOWN)
@@ -73,17 +53,34 @@ display = create_PiicoDev_SSD1306(0x3C,1,400000,14,15,0)
 tempi2c = I2C(I2C_BUS, sda=Pin(SDA), scl=Pin(SCL), freq=400000)
 dht20 = DHT20(TEMP_ADDR, tempi2c)
 
+# WiFi details
+ssid = 'YOUR_WIFI_SSID'
+password = 'YOUR_WIFI_PASSWORD'
+
+# Online dates table
+DATES_URL = "https://raw.githubusercontent.com/tracyabruce/storybridgelights/main/dates.json"
+
+# New Farm, QLD coordinates
+LATQ = -27.4689
+LONQ = 153.0480
+
+# Hornsby, NSW coordinates
+LAT = -33.7047
+LON = 151.0987
+
 #api call for queensland weather
 API_URLQ = (
     "https://api.open-meteo.com/v1/forecast?"
     "latitude={}&longitude={}&current_weather=true"
-).format(BRISBANE_LAT, BRISBANE_LON)
+).format(LATQ, LONQ)
 
 #api call for daily forecast for local weather
 API_URLL = (
     "https://api.open-meteo.com/v1/forecast?"
-    "latitude={}&longitude={}&daily=weather_code&forecast_days=1"
-).format(LOCAL_LAT, LOCAL_LON)
+    "latitude={}&longitude={}"
+    "&daily=weather_code,temperature_2m_max,temperature_2m_min"
+    "&forecast_days=1&timezone=auto"
+).format(LAT, LON)
 
 # Colours - strand is GBR
 off = 0, 0, 0
@@ -117,25 +114,10 @@ colour_map = {
 # Used if web table fails or date is missing
 fallback_colour_names = ["blue", "gold", "blue", "gold", "blue"]
 
-def validate_config():
-    missing = []
-
-    if SSID == "YOUR_WIFI_NAME" or SSID == "":
-        missing.append("SSID")
-
-    if PASSWORD == "YOUR_WIFI_PASSWORD":
-        missing.append("PASSWORD")
-
-    if DATES_URL == "" or "example.com" in DATES_URL:
-        missing.append("DATES_URL")
-
-    if missing:
-        raise RuntimeError("Set these values in config.py: " + ", ".join(missing))
-
 def connect_wifi():
     wlan = network.WLAN(network.STA_IF)
     wlan.active(True)
-    wlan.connect(SSID, PASSWORD)
+    wlan.connect(ssid, password)
 
     print("Connecting to WiFi...")
     while not wlan.isconnected():
@@ -158,38 +140,18 @@ def get_dates_table():
         text = response.text
         response.close()
 
-        dates_table = ujson.loads(text)
-        if isinstance(dates_table, dict):
-            return dates_table
-
-        print("Dates table JSON must be an object")
-        return None
+        return ujson.loads(text)
 
     except Exception as e:
         print("Error fetching dates table:", e)
         return None
 
-def is_valid_colour_sequence(colour_names):
-    if not isinstance(colour_names, list) or len(colour_names) < 5:
-        return False
-
-    for colour_name in colour_names[:5]:
-        if colour_name not in colour_map:
-            return False
-
-    return True
-
 def get_colour_names_for_date(dates_table, month, day):
     key = "{:02d}-{:02d}".format(month, day)
 
     if dates_table is not None and key in dates_table:
-        colour_names = dates_table[key]
-
-        if is_valid_colour_sequence(colour_names):
-            print("Using colours from web table for", key)
-            return colour_names[:5]
-
-        print("Invalid web colours found for", key)
+        print("Using colours from web table for", key)
+        return dates_table[key]
 
     print("No web colours found for", key)
     print("Using fallback colours")
@@ -232,22 +194,7 @@ def get_json(url):
     finally:
         r.close()
 
-def get_local_weather_code():
-    try:
-        forecast = get_json(API_URLL)
-        daily = forecast.get("daily", {})
-        weather_codes = daily.get("weather_code", [])
-
-        if weather_codes:
-            return weather_codes[0]
-
-    except Exception as e:
-        print("Error fetching local weather:", e)
-
-    return None
-
 # Connect to network
-validate_config()
 connect_wifi()
 sync_time()
 
@@ -255,7 +202,14 @@ sync_time()
 strand.fill((0, 0, 0))
 strand.write()
 
-weather_code = get_local_weather_code()
+forecast = get_json(API_URLL)
+daily = forecast.get("daily", {})
+wcode = daily.get("weather_code",[])
+max_temps = daily.get("temperature_2m_max", [])
+min_temps = daily.get("temperature_2m_min", [])
+
+max_temp = round(max_temps[0]) if max_temps else None
+min_temp = round(min_temps[0]) if min_temps else None
 
 # Download dates table once at startup
 dates_table = get_dates_table()
@@ -269,23 +223,20 @@ day = current_time_tuple[2]
 display.fill(0)
 display.text("Brisbane:",0,1)
 display.text("Local Temp:",0,16)
-display.text("Mx",0,33)
-display.text("Mn",0,47)
+display.text("Mx {}".format(max_temp if max_temp is not None else "--"), 0, 31)
+display.text("Mn {}".format(min_temp if min_temp is not None else "--"), 0, 45)
 display.fill_rect(100,0,20,10,0) #clear previous temp from display
 display.fill_rect(100,16,20,10,0) #clear previous temp from display
 display.show()
 
 # Simplify WMO codes from open-meteo into 4 broad weather forecasts to display icon
-if weather_code is None:
-    # display cloudy if the weather call fails
-    display.load_pbm('cloudy1.pbm',1)
-elif weather_code < 2:
+if wcode[0] < 2:
     # display sunny
     display.load_pbm('sunny1.pbm',1)
-elif weather_code < 4:
+elif wcode[0] < 4:
     # display cloudy
     display.load_pbm('cloudy1.pbm',1)
-elif weather_code < 80:
+elif wcode[0] < 80:
     # display rain
     display.load_pbm('rainy1.pbm',1)
 else:
@@ -300,6 +251,7 @@ LOCAL_DISPLAY_REFRESH_SECONDS = 10 * 60
 last_weather_call = None
 last_local_display_refresh = None
 intQtemp = None
+event_text = ""
 
 previous_green_value = 0
 while True:
@@ -350,12 +302,13 @@ while True:
         inthum = round(measurements["rh"])
         
         display.fill_rect(100,16,20,10,0) #clear previous temp from display
-        display.fill_rect(100,47,20,10,0) #clear previous hum from display
+        display.fill_rect(100,45,20,10,0) #clear previous hum from display
         display.show()
             
         display.text(str(inttemp),100,16)
-        display.text(str(inthum),100,47)
-        display.text("%",116,47)
+        display.text("H",110,36)
+        display.text(str(inthum),100,45)
+        display.text("%",116,45)
                     
         if intQtemp is not None:
             display.fill_rect(100,1,20,10,0) #clear previous temp from display
@@ -364,6 +317,6 @@ while True:
         display.fill_rect(0,56,128,8,0)
         
         if event_text:
-            display.text(event_text,27,56)   
+            display.text(event_text,27,56)
                 
         display.show()

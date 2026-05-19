@@ -1,81 +1,23 @@
-# StoryBridge OLED
+# Story Bridge Lights
 
-MicroPython code for a Raspberry Pi Pico W bridge lighting project. The program fetches a date-based colour table, lights a 15 LED NeoPixel strand in 5 groups of 3 LEDs, and shows local weather/temperature information on a PiicoDev SSD1306 OLED. Mx and Mn text display has been included for future update to get local temp forecasts.
-
-## Security First
-
-Do not put real WiFi details in `StoryBridge.py`.
-
-1. Copy `config.example.py` to `config.py`.
-2. Edit `config.py` with your WiFi name, WiFi password, hosted `dates.json` URL, and any private location coordinates.
-3. Keep `config.py` private. It is ignored by `.gitignore` and should not be uploaded to GitHub.
-
-If real credentials were ever committed or shared, rotate the WiFi password before publishing the repository.
+MicroPython project for driving a Story Bridge themed LED strand with OLED weather and date information.
 
 ## Files
 
-- `StoryBridge.py` - main MicroPython program for the Pico W.
-- `config.example.py` - safe template for private `config.py` settings.
-- `dates.json` - current date/colour table that can be hosted with GitHub raw content.
-- `storybridge-dates.example.json` - smaller example date/colour table.
-- `PiicoDev_SSD1306.py` and `PiicoDev_Unified.py` - PiicoDev OLED support files.
+- `StoryBridge.py` - main program for WiFi, date lookup, LEDs, buttons, OLED, and weather display.
+- `PiicoDev_*.py`, `ssd1306.py`, `dht20.py` - hardware support modules.
 - `sunny1.pbm`, `cloudy1.pbm`, `rainy1.pbm`, `stormy1.pbm` - OLED weather icons.
-- `.gitignore` - excludes secrets, generated files, and packaging output.
-- `SECURITY.md` - project security notes.
-- `GITHUB_UPLOAD_CHECKLIST.md` - pre-upload checklist.
+- `secrets.example.py` - placeholder credential template.
 
-## Pico W Setup
+## Before running
 
-Upload these files to the Pico W:
-
-- `StoryBridge.py`
-- `config.py`
-- `PiicoDev_SSD1306.py`
-- `PiicoDev_Unified.py`
-- `sunny1.pbm`
-- `cloudy1.pbm`
-- `rainy1.pbm`
-- `stormy1.pbm`
-- a compatible MicroPython `dht20.py` driver
-
-This repository does not include `dht20.py`; add the DHT20 driver you use on your Pico W, making sure its license allows redistribution if you later commit it.
-
-## Example Config
+Set your local WiFi details in `StoryBridge.py`:
 
 ```python
-SSID = "My WiFi"
-PASSWORD = "My Password"
-DATES_URL = "https://raw.githubusercontent.com/YOUR_GITHUB_USERNAME/YOUR_REPOSITORY/main/dates.json"
-
-BRISBANE_LAT = -27.4689
-BRISBANE_LON = 153.0480
-LOCAL_LAT = -27.4689
-LOCAL_LON = 153.0480
+ssid = 'YOUR_WIFI_SSID'
+password = 'YOUR_WIFI_PASSWORD'
 ```
 
-## Date Table Format
+Do not commit real passwords, API keys, or local credential files. `secrets.py` and `.env` files are ignored by `.gitignore`.
 
-The JSON file uses `MM-DD` as the date key. Each date must contain at least five colour names. The program reads the first five values; an optional sixth label may be present for future display text.
-
-```json
-{
-  "05-01": ["blue", "gold", "blue", "gold", "blue"],
-  "05-19": ["purple", "purple", "purple", "purple", "purple", "World IBD"]
-}
-```
-
-Available colour names:
-
-```text
-off, green, red, maroon, blue, teal, yellow, orange, gold, purple, pink, white
-```
-
-If the online table cannot be fetched, today's date is missing, or a colour name is not recognised, the program uses:
-
-```text
-blue, gold, blue, gold, blue
-```
-
-## GitHub Upload Notes
-
-Before publishing, confirm the repository contains only placeholders for credentials. Do not upload `config.py`, `__pycache__/`, `.env` files, or any package created under `dist/`.
+The online dates table URL in `StoryBridge.py` is intentionally left unchanged because it points to the public dates data used by the project.
