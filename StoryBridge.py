@@ -1,5 +1,5 @@
 # Story Bridge - read table and date for colour of LEDs in strand - strand is GRB
-# Tracy Bruce 29 November 2025, latest edit 15 My 2026
+# Tracy Bruce 29 November 2025, latest edit 15 May 2026
 
 # Input buttons code from Pi Hut Day 3 Let it Glow
 # LED strand code based on Pi Hut Let it Glow Day 10
@@ -320,7 +320,10 @@ while True:
             if Qtemp is not None:
                 intQtemp = round(Qtemp)
 
-        colour_names = get_colour_names_for_date(dates_table, month, day)
+        date_info = get_colour_names_for_date(dates_table, month, day)
+        colour_names = date_info[:5]
+        event_text = date_info[5] if len(date_info) > 5 else ""
+        
         show_colour_sequence_from_names(colour_names)
         
      
@@ -357,6 +360,10 @@ while True:
         if intQtemp is not None:
             display.fill_rect(100,1,20,10,0) #clear previous temp from display
             display.text(str(intQtemp),100,1)
-            display.text("World IBD",27,57)
+        
+        display.fill_rect(0,56,128,8,0)
+        
+        if event_text:
+            display.text(event_text,27,56)   
                 
         display.show()
