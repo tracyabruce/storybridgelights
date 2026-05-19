@@ -1,63 +1,81 @@
-# StoryBridge
+# StoryBridge OLED
 
-MicroPython code for a Raspberry Pi Pico W bridge lighting project. The program reads the current date, retrieves a date/colour sequence from a web-hosted JSON file, and lights a 15 LED NeoPixel strand in 5 groups of 3 LEDs.
+MicroPython code for a Raspberry Pi Pico W bridge lighting project. The program fetches a date-based colour table, lights a 15 LED NeoPixel strand in 5 groups of 3 LEDs, and shows local weather/temperature information on a PiicoDev SSD1306 OLED.
 
-Colours for dates can be found at https://www.trumba.com/events-calendar/brisbane/light-up-brisbane
-dates.json in this repo contains colours/dates for May and June 2026
+## Security First
 
-If the online table cannot be fetched, today's date is missing, or a colour name is not recognised, the program uses the built-in fallback sequence:
+Do not put real WiFi details in `StoryBridge.py`.
 
-```text
-blue, gold, blue, gold, blue
-```
+1. Copy `config.example.py` to `config.py`.
+2. Edit `config.py` with your WiFi name, WiFi password, hosted `dates.json` URL, and any private location coordinates.
+3. Keep `config.py` private. It is ignored by `.gitignore` and should not be uploaded to GitHub.
+
+If real credentials were ever committed or shared, rotate the WiFi password before publishing the repository.
 
 ## Files
 
 - `StoryBridge.py` - main MicroPython program for the Pico W.
-- `storybridge-dates.example.json` - example online date/colour table.
-- `config.example.py` - template for local WiFi and table URL settings.
-- `.gitignore` - keeps `config.py` and generated files out of GitHub.
+- `config.example.py` - safe template for private `config.py` settings.
+- `dates.json` - current date/colour table that can be hosted with GitHub raw content.
+- `storybridge-dates.example.json` - smaller example date/colour table.
+- `PiicoDev_SSD1306.py` and `PiicoDev_Unified.py` - PiicoDev OLED support files.
+- `sunny1.pbm`, `cloudy1.pbm`, `rainy1.pbm`, `stormy1.pbm` - OLED weather icons.
+- `.gitignore` - excludes secrets, generated files, and packaging output.
+- `SECURITY.md` - project security notes.
+- `GITHUB_UPLOAD_CHECKLIST.md` - pre-upload checklist.
 
-## Setup
+## Pico W Setup
 
-1. Copy `config.example.py` to `config.py`.
-2. Edit `config.py` with your WiFi name, WiFi password, and hosted date table URL.
-3. Upload these files to the Pico W:
-   - `StoryBridge.py`
-   - `config.py`
-   - `lcd_api.py`
-   - `pico_i2c_lcd.py`
-   - `dht20.py`
-4. Host `storybridge-dates.example.json` somewhere public and update `DATES_URL` in `config.py`.
+Upload these files to the Pico W:
 
-Example `config.py`:
+- `StoryBridge.py`
+- `config.py`
+- `PiicoDev_SSD1306.py`
+- `PiicoDev_Unified.py`
+- `sunny1.pbm`
+- `cloudy1.pbm`
+- `rainy1.pbm`
+- `stormy1.pbm`
+- a compatible MicroPython `dht20.py` driver
+
+This repository does not include `dht20.py`; add the DHT20 driver you use on your Pico W, making sure its license allows redistribution if you later commit it.
+
+## Example Config
 
 ```python
 SSID = "My WiFi"
 PASSWORD = "My Password"
-DATES_URL = "https://example.com/storybridge-dates.json"
+DATES_URL = "https://raw.githubusercontent.com/YOUR_GITHUB_USERNAME/YOUR_REPOSITORY/main/dates.json"
+
+BRISBANE_LAT = -27.4689
+BRISBANE_LON = 153.0480
+LOCAL_LAT = -27.4689
+LOCAL_LON = 153.0480
 ```
 
 ## Date Table Format
 
-The JSON file uses `MM-DD` as the date key. Each date must contain exactly five colour names:
+The JSON file uses `MM-DD` as the date key. Each date must contain at least five colour names. The program reads the first five values; an optional sixth label may be present for future display text.
 
 ```json
 {
   "05-01": ["blue", "gold", "blue", "gold", "blue"],
-  "05-02": ["blue", "gold", "blue", "gold", "blue"],
-  "06-30": ["blue", "gold", "blue", "gold", "blue"]
+  "05-19": ["purple", "purple", "purple", "purple", "purple", "World IBD"]
 }
 ```
 
-The available colour names are:
+Available colour names:
 
 ```text
 off, green, red, maroon, blue, teal, yellow, orange, gold, purple, pink, white
 ```
 
-## Notes
+If the online table cannot be fetched, today's date is missing, or a colour name is not recognised, the program uses:
 
-- Do not commit your real `config.py` because it contains your WiFi password.
-- If your web server does not allow `.json`, the content can still be JSON as long as the URL returns plain text containing the JSON table.
-- The timezone offset is set to Sydney daylight saving time in `StoryBridge.py`. Adjust `TIME_OFFSET` if needed.
+```text
+blue, gold, blue, gold, blue
+```
+
+## GitHub Upload Notes
+
+Before publishing, confirm the repository contains only placeholders for credentials. Do not upload `config.py`, `__pycache__/`, `.env` files, or any package created under `dist/`.
