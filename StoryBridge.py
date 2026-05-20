@@ -11,8 +11,8 @@
 # buttons, temp sensor, and OLED powered by pin 5 (3.3v)
 # LED strand powered by pin 40 (vbus 5v)
 
-# Red button (orange) going to pin 9 (gp 6)
-# Green button (green) going to pin 10 (gp 7)
+# Red button going to pin 22 (gp 17)
+# Green button going to pin 21 (gp 16)
 
 # Story Bridge - read web table and date for colour of LEDs in strand - strand is GRB
 
@@ -28,8 +28,8 @@ import urequests
 import ujson
 
 # Buttons
-redbutton = Pin(6, Pin.IN, Pin.PULL_DOWN)
-greenbutton = Pin(7, Pin.IN, Pin.PULL_DOWN)
+redbutton = Pin(17, Pin.IN, Pin.PULL_DOWN)
+greenbutton = Pin(16, Pin.IN, Pin.PULL_DOWN)
 
 # LED strand details
 GPIOnumber = 2
