@@ -32,7 +32,7 @@ redbutton = Pin(6, Pin.IN, Pin.PULL_DOWN)
 greenbutton = Pin(7, Pin.IN, Pin.PULL_DOWN)
 
 # LED strand details
-GPIOnumber = 21
+GPIOnumber = 2
 LEDcount = 15
 strand = NeoPixel(Pin(GPIOnumber), LEDcount)
 
