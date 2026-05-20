@@ -40,14 +40,14 @@ strand = NeoPixel(Pin(GPIOnumber), LEDcount)
 TIME_OFFSET = 36000 # Sydney 10 hours ahead
 
 # OLED/sensor I2C pins/BUS/address
-SDA = 14
-SCL = 15
+SDA = 26
+SCL = 27
 I2C_BUS = 1
 TEMP_ADDR = 0x38
 
 # setup OLED I2C
 #oledi2c = I2C(I2C_BUS, sda=Pin(SDA), scl=Pin(SCL))
-display = create_PiicoDev_SSD1306(0x3C,1,400000,14,15,0)
+display = create_PiicoDev_SSD1306(0x3C,1,400000,26,27,0)
 
 # Set up temperature sensor I2C
 tempi2c = I2C(I2C_BUS, sda=Pin(SDA), scl=Pin(SCL), freq=400000)
