@@ -1,7 +1,7 @@
 # Story Bridge - read table and date for colour of LEDs in strand - strand is GRB
 # Tracy Bruce 29 November 2025, latest edit 19 May 2026
 
-# Input buttons code from Pi Hut Day 3 Let it Glow, changed to pin pull_down
+# Input buttons code from Pi Hut Day 3 Let it Glow, changed to pin pull_up
 # LED strand code based on Pi Hut Let it Glow Day 10
 # OLED code from Core Electronics PiicoDev-SSD1306
 # current weather code from ChatGPT
