@@ -1,7 +1,7 @@
 # Story Bridge - read table and date for colour of LEDs in strand - strand is GRB
 # Tracy Bruce 29 November 2025, latest edit 19 May 2026
 
-# Input buttons code from Pi Hut Day 3 Let it Glow
+# Input buttons code from Pi Hut Day 3 Let it Glow, changed to pin pull_down
 # LED strand code based on Pi Hut Let it Glow Day 10
 # OLED code from Core Electronics PiicoDev-SSD1306
 # current weather code from ChatGPT
@@ -28,8 +28,8 @@ import urequests
 import ujson
 
 # Buttons
-redbutton = Pin(17, Pin.IN, Pin.PULL_DOWN)
-greenbutton = Pin(16, Pin.IN, Pin.PULL_DOWN)
+redbutton = Pin(17, Pin.IN, Pin.PULL_UP)
+greenbutton = Pin(16, Pin.IN, Pin.PULL_UP)
 
 # LED strand details
 GPIOnumber = 2
@@ -256,13 +256,13 @@ last_local_display_refresh = None
 intQtemp = None
 event_text = ""
 
-previous_green_value = 0
+previous_green_value = 1
 while True:
     time.sleep(0.1)
     now = time.time()
     
     green_value = greenbutton.value()
-    green_pressed = green_value == 1 and previous_green_value == 0
+    green_pressed = green_value == 0 and previous_green_value == 1
     
     if green_pressed:
         print("Green button pressed")
@@ -282,7 +282,7 @@ while True:
         show_colour_sequence_from_names(colour_names)
         
      
-    if redbutton.value() == 1:
+    if redbutton.value() == 0:
         print("Red button pressed")
         strand.fill((0, 0, 0))
         strand.write()
